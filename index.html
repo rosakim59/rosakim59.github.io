@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>평행이동, 왜 x+a 대신 x−a를 넣을까?</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --ink:         #1a1814;
+    --ink-soft:    #4a4740;
+    --ink-muted:   #888078;
+    --paper:       #faf8f4;
+    --paper-warm:  #f2ede4;
+    --accent:      #c8570d;
+    --blue:        #1a5fa8;
+    --blue-light:  #dce9f8;
+    --blue-pale:   #f3f7fb;
+    --gold:        #a0782a;
+    --gold-light:  #fef8ec;
+    --border:      #d8d0c4;
+    --rule:        #d8d0c4;
+    --green:       #2a7a50;
+    --green-light: #d4ede1;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 17px; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── HEADER — dark navy, centered ── */
+  header {
+    background: #1e2c5a;
+    margin: 0 -24px;
+    padding: 72px 40px 60px;
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  header h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(30px, 5.5vw, 48px);
+    font-weight: 700;
+    line-height: 1.25;
+    color: #ffffff;
+    margin-bottom: 20px;
+  }
+  header h1 em { color: #f5c842; font-style: normal; }
+  .subtitle {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.78);
+    font-style: italic;
+    line-height: 1.75;
+    max-width: 540px;
+    margin: 0 auto 20px;
+  }
+  .hero-meta {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+  }
+
+  /* ── BODY PROSE ── */
+  p { margin-bottom: 1.1rem; }
+  strong { font-weight: 700; color: var(--ink); }
+  em { font-style: italic; }
+
+  /* ── SECTION HEADINGS — emoji + blue underline ── */
+  h2 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 21px;
+    font-weight: 700;
+    margin: 52px 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2.5px solid var(--blue);
+    color: var(--ink);
+  }
+  h3 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 28px 0 10px;
+  }
+
+  /* ── QUOTE BLOCK ── */
+  .quote-block {
+    border-left: 4px solid var(--border);
+    padding: 18px 22px;
+    background: var(--paper-warm);
+    border-radius: 0 8px 8px 0;
+    margin: 24px 0;
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+  .quote-label {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    font-style: normal;
+  }
+
+  /* ── ALERT ── */
+  .alert {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: #fff5f4;
+    border: 1px solid #f5c6c2;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 15px;
+    color: #8b2218;
+    line-height: 1.8;
+  }
+  .alert-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+
+  /* ── MATH DISPLAY PILL ── */
+  .math-block {
+    display: flex; justify-content: center;
+    margin: 24px 0;
+  }
+  .math-pill {
+    background: var(--paper-warm);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 28px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+  }
+
+  /* ── DEFBOX / THMBOX ── */
+  .defbox {
+    border: 1.5px solid var(--blue);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 28px 0;
+    background: var(--blue-light);
+  }
+  .defbox .def-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+  .defbox p { margin-bottom: 0; font-size: 15px; color: var(--ink); }
+  .defbox p + p { margin-top: 8px; }
+
+  /* ── POINT TABLE ── */
+  .point-table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  .point-table-wrap table { width: 100%; border-collapse: collapse; text-align: center; }
+  .point-table-wrap thead tr {
+    background: var(--paper-warm);
+    border-bottom: 1px solid var(--border);
+  }
+  .point-table-wrap th {
+    padding: 10px 8px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .point-table-wrap tbody tr { border-bottom: 1px solid var(--border); }
+  .point-table-wrap tbody tr:last-child { border-bottom: none; }
+  .point-table-wrap td {
+    padding: 10px 8px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  .coord { color: var(--blue); font-weight: 500; }
+  .point-table-scroll { max-height: 220px; overflow-y: auto; }
+
+  /* ── ADD POINT BUTTON ── */
+  .btn-primary {
+    display: block; width: 100%;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 13px 18px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 14px;
+  }
+  .btn-primary:hover { background: #2e2924; }
+  .btn-primary:disabled { background: var(--border); color: var(--ink-muted); cursor: default; }
+
+  /* ── SLIDER PANEL ── */
+  .slider-panel {
+    background: var(--blue-pale);
+    border: 1px solid #d0dde9;
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin: 24px 0;
+  }
+  .slider-group { margin-bottom: 20px; }
+  .slider-group:last-child { margin-bottom: 0; }
+  .slider-label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .slider-label-text {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  .slider-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--blue);
+  }
+  input[type=range] {
+    width: 100%; height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    appearance: none; -webkit-appearance: none;
+    outline: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--blue);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 4px rgba(26,95,168,0.4);
+  }
+
+  /* ── TRANSLATION DISPLAY ── */
+  .translation-display {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px;
+    align-items: center; margin-top: 20px;
+  }
+  @media (max-width: 560px) {
+    .translation-display { grid-template-columns: 1fr; }
+    .arrow-cell { display: none; }
+  }
+  .coord-box {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .coord-box-label {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 11px;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .coord-box-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--ink);
+  }
+  .coord-box.new { border-color: #c0d5e8; background: var(--blue-pale); }
+  .coord-box.new .coord-box-value { color: var(--blue); }
+  .arrow-cell { text-align: center; font-size: 1.3rem; color: var(--border); }
+  .translation-note {
+    margin-top: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 12px;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+
+  /* ── DERIVATION CARD (dark) ── */
+  .derivation-card {
+    background: #1e2c5a;
+    color: #f2ede6;
+    border-radius: 12px;
+    padding: 40px 44px;
+    margin: 40px 0;
+  }
+  @media (max-width: 600px) { .derivation-card { padding: 28px 22px; } }
+  .derivation-card h2 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 21px;
+    font-weight: 700;
+    color: #f5c842;
+    border-bottom: 2.5px solid rgba(245,200,66,0.4);
+    margin: 0 0 18px;
+    padding-bottom: 10px;
+  }
+  .derivation-card p { color: rgba(242,237,230,0.72); font-size: 15px; }
+
+  .steps-grid {
+    display: grid; grid-template-columns: 1fr 28px 1fr; gap: 14px;
+    align-items: center; margin: 28px 0;
+  }
+  @media (max-width: 560px) {
+    .steps-grid { grid-template-columns: 1fr; }
+    .steps-arrow { display: none; }
+  }
+  .step-box {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 20px 22px;
+    text-align: center;
+  }
+  .step-box.highlight {
+    background: rgba(200,87,13,0.18);
+    border-color: rgba(200,87,13,0.45);
+  }
+  .step-label {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(242,237,230,0.4);
+    margin-bottom: 10px;
+  }
+  .step-label.hl { color: #e8958d; }
+  .step-eq {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    color: rgba(242,237,230,0.9);
+    line-height: 1.75;
+  }
+  .step-eq.hl { color: #f5a49d; }
+  .step-note {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 12px;
+    color: rgba(242,237,230,0.4);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+  .steps-arrow { text-align: center; font-size: 1.2rem; color: rgba(255,255,255,0.2); }
+
+  .final-result {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 24px;
+    text-align: center;
+  }
+  .final-result-label {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(242,237,230,0.35);
+    margin-bottom: 14px;
+  }
+  .final-eq {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 8px;
+    padding: 14px 30px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.9rem;
+    color: #f2ede6;
+  }
+  .derivation-insight {
+    margin-top: 22px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.05);
+    border-left: 3px solid rgba(200,87,13,0.6);
+    border-radius: 0 6px 6px 0;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 14px;
+    color: rgba(242,237,230,0.65);
+    line-height: 2;
+    font-style: italic;
+  }
+
+  /* ── CALLOUT (gold) ── */
+  .callout {
+    display: flex; gap: 14px;
+    background: var(--gold-light);
+    border: 1px solid #e8d5a8;
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 24px 0;
+  }
+  .callout-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .callout-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .callout-body {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 14px;
+    color: #7a5c1a;
+    line-height: 1.95;
+  }
+
+  /* ── FINAL SET DISPLAY ── */
+  .final-set {
+    display: flex; justify-content: center;
+    margin: 24px 0;
+  }
+  .final-set-box {
+    background: var(--blue-pale);
+    border: 2px solid #b8cfe0;
+    border-radius: 10px;
+    padding: 14px 32px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--blue);
+    text-align: center;
+  }
+
+  /* ── CHART ── */
+  .chart-wrap { position: relative; width: 100%; height: 360px; margin-top: 14px; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; height: 1px; background: var(--border); margin: 36px 0; }
+
+  /* ── TWO-COL ── */
+  .two-col-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    align-items: start; margin: 20px 0;
+  }
+  @media (max-width: 560px) { .two-col-grid { grid-template-columns: 1fr; } }
+
+  /* ── ROW FADE ── */
+  .fade-in-row { animation: rowIn 0.35s ease; }
+  @keyframes rowIn {
+    from { opacity: 0; background: var(--blue-light); }
+    to   { opacity: 1; background: transparent; }
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 72px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    color: var(--ink-muted);
+    text-align: center;
+  }
+  footer .motto {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+  footer p { font-size: 14px; max-width: 440px; margin: 0 auto; line-height: 1.9; }
+
+  /* ── HIGHLIGHT ── */
+  mark {
+    background: #ffe6a0;
+    color: var(--ink);
+    border-radius: 3px;
+    padding: 1px 4px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header — dark navy, centered -->
+<header>
+  <h1>왜 <em>x + a</em> 대신<br><em>x − a</em>를 넣을까?</h1>
+  <p class="subtitle">억지로 외워야 했던 그 공식, 사실 지극히 논리적이었습니다.<br>'집합'이라는 작은 관점의 전환으로 모든 것이 명확해집니다.</p>
+  <div class="hero-meta">⏱ 읽는 데 약 5분 &nbsp;·&nbsp; 🎛 직접 조작하며 확인</div>
+</header>
+
+<!-- ── SECTION 1 ── -->
+<h2>🤔 우리가 헷갈렸던 이유</h2>
+
+<p>고등학교 수학 시간, 함수의 평행이동을 처음 배울 때 대부분의 학생이 같은 벽에 부딪힙니다. 오른쪽(양의 방향)으로 이동했는데 왜 식에는 더하기가 아니라 빼기를 써야 하는가— 이 직관과의 충돌이 공식을 '이해'가 아닌 '암기'의 대상으로 전락시킵니다.</p>
+
+<div class="quote-block">
+  <div class="quote-label">교과서의 설명</div>
+  <p>"함수 $y = f(x)$의 그래프를 $x$축 방향으로 $a$만큼, $y$축 방향으로 $b$만큼 평행이동하면, $x$ 대신 $x - a$를, $y$ 대신 $y - b$를 대입한다."</p>
+</div>
+
+<div class="alert">
+  <span class="alert-icon">🤔</span>
+  <span>"플러스 방향으로 이동했는데 왜 빼기를 쓰지? 직관과 정반대 아닌가?"<br>
+  이 의문을 품었던 사람이라면, 지금부터 읽어볼 가치가 충분합니다.</span>
+</div>
+
+<hr class="divider">
+
+<!-- ── SECTION 2 ── -->
+<h2>📍 그래프는 '선'이 아니라 '점들의 집합'이다</h2>
+
+<p>가장 핵심적인 관점의 전환입니다. 매끄러운 곡선처럼 보이는 그래프는, 사실 특정 규칙을 만족하는 무수히 많은 순서쌍 $(x, y)$의 모임, 즉 <strong>집합</strong>입니다. 이를 집합 기호(조건제시법)로 정확히 표현하면 아래와 같습니다.</p>
+
+<div class="math-block">
+  <div class="math-pill">{ (x, y) | y = x<sup>2</sup> }</div>
+</div>
+
+<p>아래 버튼을 눌러 규칙 $y = x^2$을 만족하는 점들을 하나씩 확인해 보세요. 각각의 점이 모여 우리가 아는 포물선이 됩니다.</p>
+
+<div class="two-col-grid">
+  <div>
+    <div style="background:var(--paper-warm); border:1px solid var(--border); border-radius:8px; padding:16px 20px; margin-bottom:14px;">
+      <div style="font-family:'Noto Sans KR',sans-serif; font-size:11px; color:var(--ink-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">적용 규칙</div>
+      <div style="font-family:'DM Serif Display',serif; font-size:1.6rem; color:var(--ink);">y = x<sup>2</sup></div>
+    </div>
+    <button id="addPointBtn" class="btn-primary">점 추가하기 →</button>
+  </div>
+  <div class="point-table-wrap">
+    <table>
+      <thead><tr><th>x</th><th>y = x²</th><th>순서쌍</th></tr></thead>
+    </table>
+    <div class="point-table-scroll">
+      <table><tbody id="pointTableBody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ── SECTION 3 ── -->
+<h2>➡️ 점의 이동과 새로운 좌표</h2>
+
+<p>이제 슬라이더로 이동 거리를 직접 설정해 보세요. 점 하나를 이동시키는 것은 직관적으로 더하기(+)가 맞습니다. 새로운 위치에 이사 온 점에는 임시로 대문자 $X, Y$(더미 변수)를 붙여 구분합니다.</p>
+
+<div class="slider-panel">
+  <div class="slider-group">
+    <div class="slider-label">
+      <span class="slider-label-text">$x$축 이동 거리 ($a$)</span>
+      <span class="slider-value" id="aValDisplay">1</span>
+    </div>
+    <input type="range" id="aSlider" min="-5" max="5" value="1" step="1">
+  </div>
+  <div class="slider-group">
+    <div class="slider-label">
+      <span class="slider-label-text">$y$축 이동 거리 ($b$)</span>
+      <span class="slider-value" id="bValDisplay">3</span>
+    </div>
+    <input type="range" id="bSlider" min="-5" max="5" value="3" step="1">
+  </div>
+</div>
+
+<div class="translation-display">
+  <div class="coord-box">
+    <div class="coord-box-label">원래 점</div>
+    <div class="coord-box-value">(x, y)</div>
+  </div>
+  <div class="arrow-cell">→</div>
+  <div class="coord-box new">
+    <div class="coord-box-label">이동 후 (더미 변수)</div>
+    <div class="coord-box-value">
+      (X, Y) = (x <span id="aSign">+ 1</span>, y <span id="bSign">+ 3</span>)
+    </div>
+  </div>
+</div>
+<p class="translation-note">이동한 만큼 더하는 것, 이 단계까지는 자연스럽습니다.</p>
+
+<!-- ── SECTION 4 (dark) ── -->
+<div class="derivation-card">
+  <h2>🔑 마이너스(−)의 진짜 정체</h2>
+  <p>
+    우리가 아는 단서는 오직 원래 규칙 $y = x^2$ 뿐입니다.
+    새 점 $X, Y$의 규칙을 구하려면, 방금 만든 식을 소문자 $x, y$에 대해 <strong style="color:#f5a49d">이항(移項)</strong>해야 합니다.
+    슬라이더 값에 따라 아래 수식이 실시간으로 갱신됩니다.
+  </p>
+
+  <div class="steps-grid">
+    <div class="step-box">
+      <div class="step-label">Step 1 &nbsp;|&nbsp; 새로운 좌표 정의</div>
+      <div class="step-eq">
+        X = x <span id="step1_a">+ 1</span><br>
+        Y = y <span id="step1_b">+ 3</span>
+      </div>
+    </div>
+    <div class="steps-arrow">⇒</div>
+    <div class="step-box highlight">
+      <div class="step-label hl">Step 2 &nbsp;|&nbsp; 이항 ← 마이너스의 근원</div>
+      <div class="step-eq hl">
+        x = X <span id="step2_a">− 1</span><br>
+        y = Y <span id="step2_b">− 3</span>
+      </div>
+      <div class="step-note">새 좌표에서 이동량을 빼야 원래 위치가 복원됩니다.</div>
+    </div>
+  </div>
+
+  <div class="final-result">
+    <div class="final-result-label">Step 3 &nbsp;|&nbsp; 원래 규칙 y = x² 에 대입</div>
+    <div class="final-eq">
+      Y <span id="step3_b">− 3</span> = (X <span id="step3_a">− 1</span>)<sup>2</sup>
+    </div>
+  </div>
+
+  <div class="derivation-insight">
+    마이너스는 방향이 반대이기 때문이 아닙니다.
+    새로운 점의 좌표로 원래 위치를 역추적하는 과정,
+    즉 이항(移項)이라는 대수적 조작의 자연스러운 결과입니다.
+  </div>
+</div>
+
+<!-- ── SECTION 5 ── -->
+<h2>🏷️ 이름표 교체와 최종 확인</h2>
+
+<p>이제 마지막 단계만 남았습니다. 임시로 사용했던 대문자 $X, Y$는 이미 역할을 다했습니다. 집합에서 변수명은 의미를 바꾸지 않으며—이를 <strong>더미 변수(dummy variable)</strong>라 합니다—친숙한 소문자 $x, y$로 이름표를 교체하면 최종 규칙이 완성됩니다.</p>
+
+<div class="callout">
+  <span class="callout-icon">💡</span>
+  <div>
+    <div class="callout-title">더미 변수(Dummy Variable)란?</div>
+    <p class="callout-body">
+      $\{ s \mid s\text{는 정수} \}$와 $\{ t \mid t\text{는 정수} \}$는 정수의 집합으로 완전히 동일한 집합입니다.
+      집합의 성질은 변수 이름이 아니라 조건에 의해 결정되기 때문입니다.
+      마찬가지로 $X, Y$를 $x, y$로 교체해도 집합(=그래프)은 변하지 않습니다.
+    </p>
+  </div>
+</div>
+
+<div class="final-set">
+  <div class="final-set-box">
+    { (x, y) | y <span id="final_b">− 3</span> = (x <span id="final_a">− 1</span>)<sup>2</sup> }
+  </div>
+</div>
+
+<p>위 슬라이더 값이 그대로 적용된 결과를 아래 그래프에서 확인하세요. 점선이 원래 함수 $y = x^2$이며, 실선이 평행이동된 함수입니다.</p>
+
+<div class="chart-wrap">
+  <canvas id="mathChart"></canvas>
+</div>
+
+<footer>
+  <div class="motto">"수학은 외우는 것이 아니라 이해하는 것이다."</div>
+  <p>함수를 점들의 집합으로 바라보는 작은 관점의 전환 하나만으로, 오랫동안 억지로 외워왔던 공식이 지극히 자연스럽고 빈틈 없는 논리의 산물임을 알 수 있습니다.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+<script>
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: '$$', right: '$$', display: true},
+      {left: '$',  right: '$',  display: false}
+    ],
+    throwOnError: false,
+    ignoredClasses: ['math-pill','math-block','final-set-box','step-eq','final-eq','coord-box-value','derivation-card']
+  });
+</script>
+<script>
+  /* ── HELPERS ── */
+  const fmt = (val, transposed = false) => {
+    let n = parseInt(val);
+    if (transposed) n = -n;
+    if (n === 0) return '';
+    return n > 0 ? `+ ${n}` : `\u2212 ${Math.abs(n)}`;
+  };
+  const fmtFinal = val => {
+    let n = parseInt(val);
+    if (n === 0) return '';
+    return n > 0 ? `\u2212 ${n}` : `+ ${Math.abs(n)}`;
+  };
+
+  const aSlider = document.getElementById('aSlider');
+  const bSlider = document.getElementById('bSlider');
+
+  const updateUI = () => {
+    const a = aSlider.value, b = bSlider.value;
+    document.getElementById('aValDisplay').textContent = a;
+    document.getElementById('bValDisplay').textContent = b;
+    document.getElementById('aSign').textContent = fmt(a);
+    document.getElementById('bSign').textContent = fmt(b);
+    document.getElementById('step1_a').textContent = fmt(a);
+    document.getElementById('step1_b').textContent = fmt(b);
+    document.getElementById('step2_a').textContent = fmt(a, true);
+    document.getElementById('step2_b').textContent = fmt(b, true);
+    document.getElementById('step3_a').textContent = fmtFinal(a);
+    document.getElementById('step3_b').textContent = fmtFinal(b);
+    document.getElementById('final_a').textContent = fmtFinal(a);
+    document.getElementById('final_b').textContent = fmtFinal(b);
+    updateChart(parseInt(a), parseInt(b));
+  };
+  aSlider.addEventListener('input', updateUI);
+  bSlider.addEventListener('input', updateUI);
+
+  /* ── POINT TABLE ── */
+  let currentX = -3;
+  const addPointBtn = document.getElementById('addPointBtn');
+  const pointTableBody = document.getElementById('pointTableBody');
+
+  addPointBtn.addEventListener('click', () => {
+    if (currentX > 3) {
+      addPointBtn.textContent = '모든 기본 점을 확인했습니다';
+      addPointBtn.disabled = true;
+      return;
+    }
+    const y = currentX * currentX;
+    const row = document.createElement('tr');
+    row.className = 'fade-in-row';
+    row.innerHTML = `
+      <td style="padding:10px 8px; font-family:'DM Serif Display',serif; font-style:italic; text-align:center;">${currentX}</td>
+      <td style="padding:10px 8px; text-align:center; font-size:13px; color:var(--ink-muted);">${currentX}² = ${y}</td>
+      <td style="padding:10px 8px; text-align:center;" class="coord">(${currentX}, ${y})</td>
+    `;
+    pointTableBody.appendChild(row);
+    pointTableBody.closest('.point-table-scroll').scrollTop = 9999;
+    currentX++;
+  });
+  for (let i = 0; i < 4; i++) addPointBtn.click();
+
+  /* ── CHART ── */
+  const genData = (a, b) => {
+    const d = [];
+    for (let x = -9; x <= 9; x += 0.08) d.push({ x, y: Math.pow(x - a, 2) + b });
+    return d;
+  };
+  const genOrig = () => {
+    const d = [];
+    for (let x = -9; x <= 9; x += 0.08) d.push({ x, y: x * x });
+    return d;
+  };
+
+  const ctx = document.getElementById('mathChart').getContext('2d');
+  let mathChart = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'y = x²  (원래 함수)',
+          data: genOrig(),
+          borderColor: '#c8c1b8',
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          showLine: true,
+          pointRadius: 0,
+          borderDash: [5, 5],
+          tension: 0.3,
+        },
+        {
+          label: '평행이동된 함수',
+          data: genData(1, 3),
+          borderColor: '#1a5fa8',
+          backgroundColor: 'rgba(26,95,168,0.07)',
+          borderWidth: 2.5,
+          showLine: true,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.3,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          type: 'linear', position: 'center',
+          min: -6, max: 6,
+          grid: { color: '#ece7e0' },
+          ticks: { stepSize: 1, color: '#b0a89e', font: { family: "'Noto Sans KR'" } }
+        },
+        y: {
+          type: 'linear', position: 'center',
+          min: -3, max: 12,
+          grid: { color: '#ece7e0' },
+          ticks: { stepSize: 2, color: '#b0a89e', font: { family: "'Noto Sans KR'" } }
+        }
+      },
+      plugins: {
+        legend: {
+          labels: {
+            font: { family: "'Noto Serif KR'", size: 13 },
+            color: '#5a5248', boxWidth: 24, padding: 20,
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(26,22,18,0.85)',
+          bodyFont: { family: "'DM Serif Display'", size: 13 },
+          padding: 10,
+          callbacks: {
+            label: ctx => `(${ctx.parsed.x.toFixed(1)}, ${ctx.parsed.y.toFixed(1)})`
+          }
+        }
+      },
+      animation: { duration: 350, easing: 'easeOutCubic' }
+    }
+  });
+
+  const updateChart = (a, b) => {
+    mathChart.data.datasets[1].data = genData(a, b);
+    const ea = fmtFinal(a), eb = fmtFinal(b);
+    mathChart.data.datasets[1].label = `y ${eb} = (x ${ea})\u00B2`;
+    mathChart.update();
+  };
+
+  updateUI();
+</script>
+</body>
+</html>
