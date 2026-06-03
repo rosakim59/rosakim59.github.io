@@ -59,7 +59,7 @@
   .subtitle {
     font-size: 15px;
     color: rgba(255, 255, 255, 0.78);
-    font-style: italic;
+    font-style: normal;
     line-height: 1.75;
     max-width: 540px;
     margin: 0 auto 20px;
@@ -102,7 +102,7 @@
     margin: 24px 0;
     font-size: 15px;
     color: var(--ink-soft);
-    font-style: italic;
+    font-style: normal;
   }
   .quote-label {
     font-family: 'Noto Sans KR', sans-serif;
@@ -391,7 +391,7 @@
     font-size: 14px;
     color: rgba(242,237,230,0.65);
     line-height: 2;
-    font-style: italic;
+    font-style: normal;
   }
 
   /* ── CALLOUT (gold) ── */
@@ -468,7 +468,7 @@
     font-size: 1.15rem;
     color: var(--ink);
     margin-bottom: 10px;
-    font-style: italic;
+    font-style: normal;
   }
   footer p { font-size: 14px; max-width: 440px; margin: 0 auto; line-height: 1.9; }
 
@@ -580,7 +580,7 @@
 <!-- ── SECTION 4 (dark) ── -->
 <div class="derivation-card">
   <h2>🔑 마이너스(−)의 진짜 정체</h2>
-  <p>
+  <p id="dc-intro">
     우리가 아는 단서는 오직 원래 규칙 $y = x^2$ 뿐입니다.
     새 점 $X, Y$의 규칙을 구하려면, 방금 만든 식을 소문자 $x, y$에 대해 <strong style="color:#f5a49d">이항(移項)</strong>해야 합니다.
     슬라이더 값에 따라 아래 수식이 실시간으로 갱신됩니다.
@@ -812,6 +812,23 @@
   };
 
   updateUI();
+</script>
+<script>
+  /* FIX: render inline math in the dark "마이너스의 진짜 정체" intro paragraph.
+     It sits inside .derivation-card, which is in auto-render's ignoredClasses,
+     so its $...$ math was left unrendered. Render just this paragraph directly. */
+  (function () {
+    var el = document.getElementById('dc-intro');
+    if (el && window.renderMathInElement) {
+      renderMathInElement(el, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$',  right: '$',  display: false }
+        ],
+        throwOnError: false
+      });
+    }
+  })();
 </script>
 </body>
 </html>
